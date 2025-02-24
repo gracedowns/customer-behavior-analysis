@@ -20,4 +20,45 @@
 ### Data Analysis
 - Explored database, familiarized self with table names and contents, and identified primary keys
 - Created .csv file for Tableau by extracting data from database
+#### Creating student engagement .csv
+1. Extracted the following information from student_purchases to create table purchases_info
+  - ID of purchase (purchase_id)
+  - ID of student (student_id)
+  - Purchase type (purchase_type)
+  - Start Date (date_purchased)
+  - End Date (derived using CASE, DATE_ADD, and MAKEDATE)
+  - Refund Date (refund_date)
+    - Used with IF statement to modify end_date when applicable
+ ```sql
+SELECT
+	purchase_id,
+    student_id,
+    purchase_type,
+    date_start,
+    IF(date_refunded IS NULL, date_end, date_refunded) AS date_end
+ FROM
+(SELECT
+	purchase_id,
+    student_id,
+    purchase_type,
+    date_purchased AS date_start,
+	CASE
+		-- when purchase type is monthly
+		WHEN purchase_type = 0 THEN
+			DATE_ADD(MAKEDATE(YEAR(date_purchased), DAY(date_purchased)),
+				INTERVAL MONTH(date_purchased) MONTH)
+        -- when purchase type is quarterly       
+		WHEN purchase_type = 1 THEN
+			DATE_ADD(MAKEDATE(YEAR(date_purchased), DAY(date_purchased)),
+				INTERVAL MONTH (date_purchased)+2 MONTH)
+		-- when purchase type is annual
+		WHEN purchase_type = 2 THEN
+			DATE_ADD(MAKEDATE(YEAR(date_purchased), DAY(date_purchased)),
+				INTERVAL MONTH(date_purchased)+11 MONTH)
+    END AS date_end,
+	date_refunded
+FROM student_purchases) purchases_info;
+```
+2. Saved table with CREATE VIEW
+3. 
 ### Data Visualization
