@@ -59,6 +59,28 @@ SELECT
 	date_refunded
 FROM student_purchases) purchases_info;
 ```
-2. Saved table with CREATE VIEW
-3. 
+2. Saved table using CREATE VIEW
+3. Joined purchases_info with student_engagement
+4. Create fifth column called 'paid' using CASE and three WHEN THEN statements to determine the student's subscription type
+   - 0 = Free-plan student
+   - 1 = Paying student 
+```sql
+SELECT
+	e.student_id,
+	e.date_engaged,
+	p.date_start,
+	p.date_end,
+    CASE
+    -- free plan
+    WHEN date_start IS NULL AND date_end IS NULL THEN 0
+    -- paying
+    WHEN date_engaged BETWEEN date_start AND date_end THEN 1
+    -- paying, but engaged as free plan
+    WHEN date_engaged NOT BETWEEN date_start AND date_end THEN 0
+    END AS paid
+FROM
+	student_engagement e
+LEFT JOIN purchases_info p USING(student_id);
+```
+5. To avoid duplicate entries
 ### Data Visualization
